@@ -1,9 +1,19 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
-export default function Camera() {
+export interface CameraComponentProps {
+  showStream: boolean
+  onStreamReady: Function
+  feedInto?: React.FC<StreamInputProps> | null
+}
+
+export interface StreamInputProps {
+  stream: MediaStream
+}
+
+export const CameraStream: React.FC<CameraComponentProps> = ({ showStream, onStreamReady, feedInto }) => {
   const videoRef = useRef<HTMLVideoElement>(document.createElement('video'))
   const [isStreamOpen, setStreamOpen] = useState(false)
-  // const [mediaStream, setMediaStream] = useState(undefined)
+  const [mediaStream, setMediaStream] = useState(new MediaStream())
   
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
     throw new Error('Browser API Media Devices not available')
@@ -17,23 +27,42 @@ export default function Camera() {
     }
   }).then( stream => {
     setStreamOpen(true)
-    videoRef.current.srcObject = stream;
+    setMediaStream(stream)
+    videoRef.current.srcObject = stream
   }).catch( err =>{
     console.error(err)
   })
-  
+
+  // useEffect(()=>{
+  //   onStreamReady(isStreamOpen)
+  // }, [isStreamOpen, onStreamReady])
+
   return (
-    <div>
+    <div className="container">
       {
         isStreamOpen ? (
-          <video ref={videoRef} onCanPlay={videoRef.current.play} 
-            width="-500px" height="auto" autoPlay playsInline 
-          />
+          <div>
+            {
+              showStream ? (
+                <video ref={videoRef} onCanPlay={videoRef.current.play} 
+                  width="500px" height="250px" autoPlay playsInline 
+                />
+              ) : null
+            }
+            
+            {/* <feedInto stream={mediaStream}/>
+            {
+              feedInto ? (
+                feedInto({
+                  stream: mediaStream
+                })
+              ) : null
+            } */}
+          </div>
         ) : (
           <p>No video</p>
         )
       }
-      <hr/>
     </div>
   )
 }

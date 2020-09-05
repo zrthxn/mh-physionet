@@ -1,13 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import Camera from '../components/Camera'
+import { CameraStream } from '../components/Camera'
+import { PoseNet } from '../components/PoseNet'
 
 export default function Patients() {
+  const [isStreamReady, setStreamReady] = useState(false)
+  const [showCam, setShowCam] = useState(true)
+
   return (
     <div>
       <h1>Patients</h1>
 
-      <Camera/>
+      <CameraStream showStream 
+        onStreamReady={setStreamReady}
+        feedInto={PoseNet}
+      />
     </div>
   )
 }
