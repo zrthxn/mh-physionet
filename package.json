@@ -5,6 +5,10 @@
   "dependencies": {
     "@tensorflow-models/posenet": "^2.2.1",
     "@tensorflow/tfjs": "^2.3.0",
+    "@tensorflow/tfjs-backend-cpu": "^2.3.0",
+    "@tensorflow/tfjs-backend-wasm": "^2.3.0",
+    "@tensorflow/tfjs-converter": "^2.3.0",
+    "@tensorflow/tfjs-core": "^2.3.0",
     "node-sass": "^4.14.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

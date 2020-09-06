@@ -29,12 +29,37 @@ const _istate = {
 export const AppContext = React.createContext({ 
   state: _istate,
   actions: {
-    setPosenetModelConfig: function (args:object) {}
+    setUser: function (args:string) {},
+    addCoins: function (args:number) {},
+    setPosenetModelConfig: function (args:object) {},
+    setMediaConfig: function (args:object) {}
   }
 })
 
 export default class ContextProvider extends Component {
   state = _istate
+
+  setUser(user: string) {
+    this.setState({
+      user
+    })
+  }
+
+  addCoins(number: number) {
+    let { coinCount } = this.state
+    coinCount += number
+    this.setState({
+      coinCount
+    })
+  }
+
+  setMediaConfig(config: object) {
+    let { CAMERA_CONFIG } = this.state
+    CAMERA_CONFIG = { ...CAMERA_CONFIG, ...config }
+    this.setState({
+      CAMERA_CONFIG
+    })
+  }
 
   setPosenetModelConfig(config: object) {
     let { POSENET_MODEL_CONFIG } = this.state
@@ -50,7 +75,10 @@ export default class ContextProvider extends Component {
         value={{
           state: this.state,
           actions: {
-            setPosenetModelConfig: this.setPosenetModelConfig
+            setUser: this.setUser,
+            addCoins: this.addCoins,
+            setPosenetModelConfig: this.setPosenetModelConfig,
+            setMediaConfig: this.setMediaConfig
           }
         }}
       >

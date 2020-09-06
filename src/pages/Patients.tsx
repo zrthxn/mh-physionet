@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react'
-// import MicRecorder from 'mic-recorder-to-mp3';
 import { CameraStream } from '../components/Camera'
-import { PoseNet } from '../components/PoseNet'
+import { PoseNetDetector } from '../components/PoseNet'
 import { AppContext } from '../ContextProvider'
 
 export default function Patients() {
@@ -14,14 +13,15 @@ export default function Patients() {
     <article>
       <h1>Patient Area</h1>
 
-      {/* <CameraStream showStream
+      <CameraStream showStream
         requestedMedia={context.state.CAMERA_CONFIG}
-        feedInto={(fedInProps)=>(
-          <PoseNet {...fedInProps} 
+        size={{ width: "auto", height: "250px" }}
+        feedInto={(incomingProps)=>(
+          <PoseNetDetector {...incomingProps} 
             config={context.state.POSENET_MODEL_CONFIG}
           />
         )}
-      /> */}
+      />
     </article>
   )
 }

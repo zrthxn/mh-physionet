@@ -16,16 +16,16 @@ export default function Header() {
             <Link to="/challenges">Challenges</Link>
           </li>
           <li>
-            <Link to="/doctors">Doctor</Link>
+            <Link to="/patients">Patients</Link>
           </li>
         </ul>
 
-        <div className="user">
+        {/* <div className="user">
           <div className="coins">
             { context.state.coinCount }
           </div>
           <div className="name">{ context.state.user }</div>
-        </div>
+        </div> */}
       </nav>
     </header>
   )

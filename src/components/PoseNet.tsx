@@ -1,44 +1,69 @@
 import React, { useEffect, useState } from 'react'
-import { load as LoadPoseNet, PoseNet as P, ModelConfig } from '@tensorflow-models/posenet'
+import * as tf from '@tensorflow/tfjs'
+import * as PoseNet from '@tensorflow-models/posenet'
 
-import { StreamInputProps } from './Camera'
+import { VideoInputProps } from './Camera'
 
-interface PoseNetComponetProps extends StreamInputProps {
-  config: ModelConfig
+interface PoseNetComponetProps extends VideoInputProps {
+  config: PoseNet.ModelConfig
 }
 
-export const PoseNet: React.FC<PoseNetComponetProps> = ({ stream, config }) => {
-  const [posenet, setposenet] = useState<P>()
-  const [videoStream, setVideoStream] = useState(new MediaStream())
+export const PoseNetDetector: React.FC<PoseNetComponetProps> = ({ video, config }) => {
+  const [posenet, setposenet] = useState<PoseNet.PoseNet>()
+  const [videoStream, setVideoStream] = useState<HTMLVideoElement | null>(null)
   
   useEffect(()=>{
-    setVideoStream(stream)
-  }, [stream])
+    setVideoStream(video)
+  }, [video])
 
   useEffect(() => {
-    LoadPoseNet(config)
-      .then((net)=>{
-        setposenet(net)
+    if(!posenet)
+      tf.setBackend('cpu').then(()=>{
+        PoseNet.load(config)
+          .then((net)=>{
+            setposenet(net)
+            console.log('Model Loaded')
+            
+            startPoseDetection()
+          })
       })
+    else
+      return function dispose() {
+        setposenet(undefined)
+      }
+  }, [config, posenet])
 
-    return () => setposenet(undefined)
-  }, [config])
+  // List of detected poses
+  var poses: any[] = []
 
-  // const pose = await guiState.net.estimatePoses(video, {
-  //   flipHorizontal: flipPoseHorizontal,
-  //   decodingMethod: 'single-person'
-  // });
-  // poses = poses.concat(pose);
-  // minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
-  // minPartConfidence = +guiState.singlePoseDetection.minPartConfidence;
+  function startPoseDetection() {
+    async function detectPose() {
+      if(posenet && videoStream)
+        poses = poses.concat(
+          posenet.estimatePoses(videoStream, {
+            flipHorizontal: true,
+            decodingMethod: 'single-person'
+          })
+        )
+      else {
+        console.error(posenet && 'Model', videoStream && 'Video', 'Missing')
+        console.log(posenet)
+        console.log(videoStream)
+      }
+
+      requestAnimationFrame(detectPose)
+    }
+
+    detectPose()
+  }
 
   return (
     <div>
       {
-        videoStream ? (
-          <p>PoseNet Active</p>
+        posenet && videoStream ? (
+          <span>PoseNet Active</span>
         ) : null
-      }      
+      }
     </div>
   )
 }
