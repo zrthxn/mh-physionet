@@ -8,7 +8,16 @@ import {
 } from '@tensorflow-models/posenet/dist/types'
 
 const _istate = {
-  user: String(),
+  user: String('Nobody'),
+  coinCount: 100,
+  CAMERA_CONFIG: {
+    audio: true,
+    video: {
+      facingMode: 'user',
+      width: { min: 1024, ideal: 1280, max: 1920 },
+      height: { min: 576, ideal: 720, max: 1080 }
+    }
+  },
   POSENET_MODEL_CONFIG: {
     architecture: 'ResNet50' as PoseNetArchitecture,
     outputStride: 32 as PoseNetOutputStride,
