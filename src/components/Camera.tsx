@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 
 export interface CameraComponentProps {
   showStream: boolean
-  onStreamReady: Function
+  requestedMedia: object
   feedInto?: React.FC<StreamInputProps> | null
 }
 
@@ -10,32 +10,43 @@ export interface StreamInputProps {
   stream: MediaStream
 }
 
-export const CameraStream: React.FC<CameraComponentProps> = ({ showStream, onStreamReady, feedInto }) => {
-  const videoRef = useRef<HTMLVideoElement>(document.createElement('video'))
-  const [isStreamOpen, setStreamOpen] = useState(false)
+export function useUserMedia(requestedMedia: object) {
   const [mediaStream, setMediaStream] = useState(new MediaStream())
+
+  useEffect(() => {
+    async function enableStream() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(requestedMedia)
+        setMediaStream(stream)
+      } catch(err) {
+        console.error(err)
+      }
+    }
+
+    enableStream()
+    return function cleanup() {
+      mediaStream.getTracks().forEach(track => {
+        track.stop()
+      })
+    }
+  }, [mediaStream, requestedMedia])
+
+  return mediaStream
+}
+
+export const CameraStream: React.FC<CameraComponentProps> = ({ showStream, requestedMedia, feedInto }) => {
+  const videoRef = useRef<HTMLVideoElement>(document.createElement('video'))
+  const [isStreamOpen, setStreamOpen] = useState(true)
   
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)
     throw new Error('Browser API Media Devices not available')
 
-  navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: {
-      facingMode: 'user',
-      width: { min: 1024, ideal: 1280, max: 1920 },
-      height: { min: 576, ideal: 720, max: 1080 }
-    }
-  }).then( stream => {
-    setStreamOpen(true)
-    setMediaStream(stream)
-    videoRef.current.srcObject = stream
-  }).catch( err =>{
-    console.error(err)
-  })
+  const mediaStream = useUserMedia(requestedMedia)
 
-  // useEffect(()=>{
-  //   onStreamReady(isStreamOpen)
-  // }, [isStreamOpen, onStreamReady])
+  if (mediaStream && videoRef.current) {
+    videoRef.current.srcObject = mediaStream
+    // setStreamOpen(true)
+  }
 
   return (
     <div className="container">
@@ -44,20 +55,19 @@ export const CameraStream: React.FC<CameraComponentProps> = ({ showStream, onStr
           <div>
             {
               showStream ? (
-                <video ref={videoRef} onCanPlay={videoRef.current.play} 
-                  width="500px" height="250px" autoPlay playsInline 
+                <video ref={videoRef} width="auto" height="250px" 
+                  autoPlay playsInline 
                 />
               ) : null
             }
             
-            {/* <feedInto stream={mediaStream}/>
             {
               feedInto ? (
                 feedInto({
                   stream: mediaStream
                 })
               ) : null
-            } */}
+            }
           </div>
         ) : (
           <p>No video</p>
