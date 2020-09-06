@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-
+// import MicRecorder from 'mic-recorder-to-mp3';
 import { CameraStream } from '../components/Camera'
 import { PoseNet } from '../components/PoseNet'
 import { AppContext } from '../ContextProvider'
@@ -12,7 +12,7 @@ export default function Patients() {
 
   return (
     <article>
-      <h1>Patients</h1>
+      <h1>Patient Area</h1>
 
       {/* <CameraStream showStream
         requestedMedia={context.state.CAMERA_CONFIG}
